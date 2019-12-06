@@ -72,7 +72,6 @@ class _RegisterPageState extends State<RegisterPage> {
                         padding: const EdgeInsets.only(left: 10.0),
                         child: InkWell(
                           onTap: () {
-                            print('tap');
                             Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(
                                     builder: (BuildContext context) =>
@@ -158,7 +157,6 @@ class _RegisterPageState extends State<RegisterPage> {
       width: double.infinity,
       child: RaisedButton(
           onPressed: () async {
-            print(_idController.text.toString());
             if (_formKey.currentState.validate()) {
               final url = 'http://localhost:4000/api/user/register';
               final res = await http.post(url, body: {
@@ -169,11 +167,14 @@ class _RegisterPageState extends State<RegisterPage> {
               // Only gets here if the fields pass
               if (res.statusCode == 200) {
                 final jsonBody = json.decode(res.body);
-                print(jsonBody);
                 final loginResult = jsonBody['success'];
                 if (loginResult) {
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (BuildContext context) => LoginPage()));
+                } else {
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content: Text(jsonBody['error']),
+                  ));
                 }
                 print(loginResult);
               }

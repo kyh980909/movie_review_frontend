@@ -7,8 +7,15 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:movie_review_frontend/model/movie.dart';
+import 'package:http/http.dart' as http;
 
 class AddMovieReviewPage extends StatefulWidget {
+  final Map userData;
+  AddMovieReviewPage({
+    Key key,
+    @required this.userData,
+  }) : super(key: key);
+
   @override
   _AddMovieReviewPageState createState() => _AddMovieReviewPageState();
 }
@@ -20,7 +27,7 @@ class _AddMovieReviewPageState extends State<AddMovieReviewPage> {
   File _image;
   final df = DateFormat('yyyy년 MM월 dd일');
   String date = '';
-  double score;
+  double score = 3.0;
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +121,7 @@ class _AddMovieReviewPageState extends State<AddMovieReviewPage> {
             color: Colors.amber,
           ),
           onRatingUpdate: (rating) {
-            print(rating);
+            score = rating;
           },
         ),
       ),
@@ -137,7 +144,6 @@ class _AddMovieReviewPageState extends State<AddMovieReviewPage> {
                 msg: '사진을 업로드해주세요.', toastLength: Toast.LENGTH_SHORT);
           } else {
             submitMovie(title.text, review.text, Image.file(_image));
-            Navigator.pop(context);
           }
         },
         child: Text(
@@ -152,21 +158,34 @@ class _AddMovieReviewPageState extends State<AddMovieReviewPage> {
   }
 
   Future submitMovie(String title, String review, Image ticket) async {
-    var movie = Movie();
-
     if (review == null) review = '';
 
     List<int> imageBytes = await _image.readAsBytes();
     String base64Image = base64Encode(imageBytes);
 
-    movie.title = title;
-    movie.date = date;
-    movie.ticket = base64Image;
-    movie.score = score.toString();
-    movie.review = review;
+    Movie movie = Movie(
+        writer: widget.userData['id'],
+        title: title,
+        date: date,
+        ticket: base64Image,
+        score: score.toString(),
+        review: review);
+    final url = 'http://localhost:4000/api/movie/write_review';
+    final res = await http.post(url, body: movie.toJson());
 
-    Fluttertoast.showToast(
-        msg: 'Movie was saved', toastLength: Toast.LENGTH_SHORT);
+    if (res.statusCode == 200) {
+      final jsonBody = json.decode(res.body);
+      final result = jsonBody['success'];
+      if (result) {
+        Fluttertoast.showToast(
+            msg: '글이 작성되었습니다!', toastLength: Toast.LENGTH_SHORT);
+
+        Navigator.pop(context);
+      } else {
+        Fluttertoast.showToast(
+            msg: jsonBody['error'].toString(), toastLength: Toast.LENGTH_SHORT);
+      }
+    }
   }
 
   Future getImage() async {

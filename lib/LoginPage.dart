@@ -1,9 +1,9 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:movie_review_frontend/RegisterPage.dart';
-
+import 'model/user.dart';
+import 'util/storage.dart';
 import 'MainPage.dart';
 
 class LoginPage extends StatefulWidget {
@@ -24,10 +24,12 @@ class _LoginPageState extends State<LoginPage> {
   bool _isObscured = true;
   String autoLoginCheck = "false";
   Color _eyeButtonColor = Colors.grey;
+  Storage storage = new Storage();
 
   @override
   void initState() {
     super.initState();
+    storage.autoLogin(context);
   }
 
   @override
@@ -162,35 +164,49 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Container buildLoginButton(BuildContext context) {
-    return Container(
-      height: 50.0,
-      width: double.infinity,
-      child: RaisedButton(
-          onPressed: () async {
-            if (_formKey.currentState.validate()) {
-              final url = 'http://localhost:4000/api/user/login';
-              final res = await http.post(url, body: {
-                'id': _idController.text.toString(),
-                'pw': _pwController.text.toString()
-              }); // 응답
-              // id, pw 입력했을 때
-              // Only gets here if the fields pass
-              if (res.statusCode == 200) {
-                final jsonBody = json.decode(res.body);
-                final loginResult = jsonBody['success'];
-                if (loginResult) {
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(
-                      builder: (BuildContext context) => MainPage()));
+  Builder buildLoginButton(BuildContext context) {
+    return Builder(
+      builder: (context) {
+        return Container(
+          height: 50.0,
+          width: double.infinity,
+          child: RaisedButton(
+              onPressed: () async {
+                if (_formKey.currentState.validate()) {
+                  final url = 'http://localhost:4000/api/user/login';
+                  final res = await http.post(url, body: {
+                    'id': _idController.text.toString(),
+                    'pw': _pwController.text.toString()
+                  }); // 응답
+                  final userData = User(_idController.text.toString(),
+                      _pwController.text.toString());
+                  // id, pw 입력했을 때
+                  if (res.statusCode == 200) {
+                    final jsonBody = json.decode(res.body);
+                    final loginResult = jsonBody['success'];
+                    if (loginResult) {
+                      storage.setUserData(_idController.text.toString(),
+                          _pwController.text.toString());
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (BuildContext context) => MainPage(
+                                userData: userData.toJson(),
+                              )));
+                    } else {
+                      Scaffold.of(context).showSnackBar(SnackBar(
+                        content: Text(jsonBody['error']),
+                      ));
+                    }
+                    print(loginResult);
+                  }
                 }
-                print(loginResult);
-              }
-            }
-          },
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
-          color: Colors.grey[900],
-          child: Text('로그인', style: Theme.of(context).primaryTextTheme.button)),
+              },
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30.0)),
+              color: Colors.grey[900],
+              child: Text('로그인',
+                  style: Theme.of(context).primaryTextTheme.button)),
+        );
+      },
     );
   }
 }
