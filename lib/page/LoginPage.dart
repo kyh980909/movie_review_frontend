@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:movie_review_frontend/RegisterPage.dart';
-import 'model/user.dart';
-import 'util/storage.dart';
+import 'package:movie_review_frontend/page/RegisterPage.dart';
+import '../model/user.dart';
+import '../util/storage.dart';
 import 'MainPage.dart';
 
 class LoginPage extends StatefulWidget {

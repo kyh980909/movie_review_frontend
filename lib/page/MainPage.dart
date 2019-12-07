@@ -1,12 +1,9 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:movie_review_frontend/LoginPage.dart';
+import 'LoginPage.dart';
 import 'package:movie_review_frontend/page/AddMovieReviewPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'model/movie.dart';
-import 'util/storage.dart';
+import '../util/storage.dart';
 import 'package:http/http.dart' as http;
 
 class MainPage extends StatefulWidget {

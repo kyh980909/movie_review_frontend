@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:movie_review_frontend/model/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-
-import '../MainPage.dart';
+import '../page/MainPage.dart';
 
 class Storage {
   void autoLogin(context) async {
