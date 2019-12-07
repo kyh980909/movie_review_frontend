@@ -32,39 +32,37 @@ class _AddMovieReviewPageState extends State<AddMovieReviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('영화 추가 페이지'),
-      ),
-      body: Container(
-          child: Column(
-        children: <Widget>[
-          inputMovieName(),
-          setDate(context),
-          IconButton(
-            icon: Icon(Icons.camera),
-            onPressed: () => getImageFromGallery(),
-          ),
-          Center(
-              child: _image == null
-                  ? Text('No image selected')
-                  : Image.file(_image, width: 300)),
-          Padding(
-              padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
-              child: TextField(
-                controller: review,
-                decoration: InputDecoration(
-                    hintText: '나만의 감상평을 적으세요 (최대 100자)',
-                    contentPadding: EdgeInsets.all(16.0),
-                    border: OutlineInputBorder()),
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                maxLength: 100,
-              )),
-          starScore(), // 별점 위젯
-          saveButton(context),
-        ],
-      )),
-    );
+        appBar: AppBar(
+          title: Text('영화 추가 페이지'),
+        ),
+        body: ListView(
+          children: <Widget>[
+            inputMovieName(),
+            setDate(context),
+            IconButton(
+              icon: Icon(Icons.camera),
+              onPressed: () => getImageFromGallery(),
+            ),
+            Center(
+                child: _image == null
+                    ? Text('No image selected')
+                    : Image.file(_image, width: 300)),
+            Padding(
+                padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
+                child: TextField(
+                  controller: review,
+                  decoration: InputDecoration(
+                      hintText: '나만의 감상평을 적으세요 (최대 100자)',
+                      contentPadding: EdgeInsets.all(16.0),
+                      border: OutlineInputBorder()),
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  maxLength: 100,
+                )),
+            starScore(), // 별점 위젯
+            saveButton(context),
+          ],
+        ));
   }
 
   Padding setDate(BuildContext context) {

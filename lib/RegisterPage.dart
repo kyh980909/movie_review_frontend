@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:movie_review_frontend/LoginPage.dart';
 
@@ -151,40 +152,44 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  Container buildRegisterButton(BuildContext context) {
-    return Container(
-      height: 50.0,
-      width: double.infinity,
-      child: RaisedButton(
-          onPressed: () async {
-            if (_formKey.currentState.validate()) {
-              final url = 'http://localhost:4000/api/user/register';
-              final res = await http.post(url, body: {
-                'id': _idController.text.toString(),
-                'pw': _pwController.text.toString()
-              }); // 응답
-              // id, pw 입력했을 때
-              // Only gets here if the fields pass
-              if (res.statusCode == 200) {
-                final jsonBody = json.decode(res.body);
-                final loginResult = jsonBody['success'];
-                if (loginResult) {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (BuildContext context) => LoginPage()));
-                } else {
-                  Scaffold.of(context).showSnackBar(SnackBar(
-                    content: Text(jsonBody['error']),
-                  ));
+  Builder buildRegisterButton(BuildContext context) {
+    return Builder(builder: (context) {
+      return Container(
+        height: 50.0,
+        width: double.infinity,
+        child: RaisedButton(
+            onPressed: () async {
+              if (_formKey.currentState.validate()) {
+                final url = 'http://localhost:4000/api/user/register';
+                final res = await http.post(url, body: {
+                  'id': _idController.text.toString(),
+                  'pw': _pwController.text.toString()
+                }); // 응답
+                // id, pw 입력했을 때
+                // Only gets here if the fields pass
+                if (res.statusCode == 200) {
+                  final jsonBody = json.decode(res.body);
+                  final loginResult = jsonBody['success'];
+                  if (loginResult) {
+                    Fluttertoast.showToast(
+                        msg: '회원가입이 완료되었습니다!', toastLength: Toast.LENGTH_SHORT);
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (BuildContext context) => LoginPage()));
+                  } else {
+                    Scaffold.of(context).showSnackBar(SnackBar(
+                      content: Text(jsonBody['error']),
+                    ));
+                  }
+                  print(loginResult);
                 }
-                print(loginResult);
               }
-            }
-          },
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
-          color: Colors.grey[900],
-          child:
-              Text('회원가입', style: Theme.of(context).primaryTextTheme.button)),
-    );
+            },
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0)),
+            color: Colors.grey[900],
+            child:
+                Text('회원가입', style: Theme.of(context).primaryTextTheme.button)),
+      );
+    });
   }
 }

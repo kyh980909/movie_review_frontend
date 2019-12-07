@@ -174,29 +174,35 @@ class _LoginPageState extends State<LoginPage> {
               onPressed: () async {
                 if (_formKey.currentState.validate()) {
                   final url = 'http://localhost:4000/api/user/login';
-                  final res = await http.post(url, body: {
-                    'id': _idController.text.toString(),
-                    'pw': _pwController.text.toString()
-                  }); // 응답
-                  final userData = User(_idController.text.toString(),
-                      _pwController.text.toString());
-                  // id, pw 입력했을 때
-                  if (res.statusCode == 200) {
-                    final jsonBody = json.decode(res.body);
-                    final loginResult = jsonBody['success'];
-                    if (loginResult) {
-                      storage.setUserData(_idController.text.toString(),
-                          _pwController.text.toString());
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (BuildContext context) => MainPage(
-                                userData: userData.toJson(),
-                              )));
-                    } else {
-                      Scaffold.of(context).showSnackBar(SnackBar(
-                        content: Text(jsonBody['error']),
-                      ));
+                  try {
+                    final res = await http.post(url, body: {
+                      'id': _idController.text.toString(),
+                      'pw': _pwController.text.toString()
+                    }); // 응답
+                    final userData = User(_idController.text.toString(),
+                        _pwController.text.toString());
+                    // id, pw 입력했을 때
+                    if (res.statusCode == 200) {
+                      final jsonBody = json.decode(res.body);
+                      final loginResult = jsonBody['success'];
+                      if (loginResult) {
+                        storage.setUserData(_idController.text.toString(),
+                            _pwController.text.toString());
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (BuildContext context) => MainPage(
+                                  userData: userData.toJson(),
+                                )));
+                      } else {
+                        Scaffold.of(context).showSnackBar(SnackBar(
+                          content: Text(jsonBody['error']),
+                        ));
+                      }
+                      print(loginResult);
                     }
-                    print(loginResult);
+                  } catch (err) {
+                    Scaffold.of(context).showSnackBar(SnackBar(
+                      content: Text('서버가 닫혀있습니다.'),
+                    ));
                   }
                 }
               },
