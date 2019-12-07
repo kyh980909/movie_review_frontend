@@ -19,78 +19,82 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _isObscured = true;
   String autoLoginCheck = "false";
   Color _eyeButtonColor = Colors.grey;
-
+  final String ip = '192.168.1.101';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(bottom: 14.0),
-            child: Text(
-              '회원가입',
-              style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+      resizeToAvoidBottomPadding: false,
+      body: Padding(
+        padding: const EdgeInsets.only(top: 100.0, bottom: 40.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 14.0),
+              child: Text(
+                '회원가입',
+                style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 20.0),
-            child: Image.asset(
-              'images/sign-up.png',
-              width: 200,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20.0),
+              child: Image.asset(
+                'images/sign-up.png',
+                width: 100,
+              ),
             ),
-          ),
-          Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(
-                      left: 40.0, right: 40.0, bottom: 5.0),
-                  child: buildIdTextField(),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                      left: 40.0, right: 40.0, bottom: 30.0),
-                  child: buildPasswordInput(context),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                      left: 40.0, right: 40.0, bottom: 30.0),
-                  child: buildRegisterButton(context),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 40.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        '이미 계정이 있으신가요?',
-                        style: TextStyle(fontSize: 16.0),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10.0),
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        LoginPage()));
-                          },
-                          child: Text(
-                            '로그인',
-                            style: TextStyle(fontSize: 16.0),
+            Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 40.0, right: 40.0, bottom: 5.0),
+                    child: buildIdTextField(),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 40.0, right: 40.0, bottom: 30.0),
+                    child: buildPasswordInput(context),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 40.0, right: 40.0, bottom: 30.0),
+                    child: buildRegisterButton(context),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 40.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          '이미 계정이 있으신가요?',
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10.0),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          LoginPage()));
+                            },
+                            child: Text(
+                              '로그인',
+                              style: TextStyle(fontSize: 16.0),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                )
-              ],
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -160,7 +164,7 @@ class _RegisterPageState extends State<RegisterPage> {
         child: RaisedButton(
             onPressed: () async {
               if (_formKey.currentState.validate()) {
-                final url = 'http://localhost:4000/api/user/register';
+                final url = 'http://$ip:4000/api/user/register';
                 final res = await http.post(url, body: {
                   'id': _idController.text.toString(),
                   'pw': _pwController.text.toString()

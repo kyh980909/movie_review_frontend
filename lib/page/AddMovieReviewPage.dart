@@ -23,7 +23,7 @@ class AddMovieReviewPage extends StatefulWidget {
 class _AddMovieReviewPageState extends State<AddMovieReviewPage> {
   TextEditingController title = TextEditingController();
   TextEditingController review = TextEditingController();
-
+  final String ip = '192.168.1.101';
   File _image;
   final df = DateFormat('yyyy년 MM월 dd일');
   String date = '';
@@ -168,7 +168,7 @@ class _AddMovieReviewPageState extends State<AddMovieReviewPage> {
         ticket: base64Image,
         score: score.toString(),
         review: review);
-    final url = 'http://localhost:4000/api/movie/write_review';
+    final url = 'http://$ip:4000/api/movie/write_review';
     final res = await http.post(url, body: movie.toJson());
 
     if (res.statusCode == 200) {

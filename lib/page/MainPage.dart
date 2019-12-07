@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:movie_review_frontend/page/DetailPage.dart';
+import 'package:outline_material_icons/outline_material_icons.dart';
 import 'LoginPage.dart';
 import 'package:movie_review_frontend/page/AddMovieReviewPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,9 +27,10 @@ class _MainPageState extends State<MainPage> {
     super.initState();
   }
 
+  final String ip = '192.168.1.101';
+
   Future getData() async {
-    var response =
-        await http.get('http://localhost:4000/api/movie/get_review_list');
+    var response = await http.get('http://$ip:4000/api/movie/get_review_list');
     if (response.statusCode == 200) {
       final result = json.decode(response.body);
       if (result['success']) {
@@ -85,6 +88,25 @@ class _MainPageState extends State<MainPage> {
                               base64Decode(snapshot.data[index]['ticket'])),
                         ),
                         Padding(
+                          padding: const EdgeInsets.only(top: 8.0, left: 2.0),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Container(
+                              child: IconButton(
+                                icon: Icon(OMIcons.modeComment),
+                                onPressed: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          DetailPage(
+                                              userData: widget.userData,
+                                              contentData:
+                                                  snapshot.data[index])));
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                        Padding(
                           padding: const EdgeInsets.only(
                               top: 8.0, left: paddingLeft),
                           child: Align(
@@ -101,7 +123,10 @@ class _MainPageState extends State<MainPage> {
                         ),
                         Padding(
                           padding: const EdgeInsets.only(
-                              top: 8.0, left: paddingLeft, bottom: 20.0),
+                              top: 8.0,
+                              left: paddingLeft,
+                              bottom: 20.0,
+                              right: 8.0),
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Container(
@@ -115,9 +140,15 @@ class _MainPageState extends State<MainPage> {
                                           fontWeight: FontWeight.bold),
                                     ),
                                   ),
-                                  Text(
-                                    snapshot.data[index]['review'],
-                                    style: TextStyle(fontSize: 16.0),
+                                  Flexible(
+                                    child: Align(
+                                      alignment: Alignment.topLeft,
+                                      child: Text(
+                                        snapshot.data[index]['review'],
+                                        style: TextStyle(fontSize: 16.0),
+                                        maxLines: 3,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
