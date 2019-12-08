@@ -3,13 +3,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:movie_review_frontend/util/storage.dart';
 
 class DetailPage extends StatefulWidget {
-  final Map userData;
   final Map contentData;
   DetailPage({
     Key key,
-    @required this.userData,
     @required this.contentData,
   }) : super(key: key);
   @override
@@ -18,14 +17,14 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   final TextEditingController _commentController = TextEditingController();
-  final String ip = '192.168.1.101';
   double opacity = 1.0;
   List<dynamic> comments = new List();
   bool lock = true;
+  Storage storage = new Storage();
 
-  getComment(String index) async {
+  Future getComment(String index) async {
     var response = await http
-        .get('http://localhost:4000/api/comment/get_comment_list/$index');
+        .get('http://${Storage.ip}:4000/api/comment/get_comment_list/$index');
     if (response.statusCode == 200) {
       final result = json.decode(response.body);
       if (result['success']) {
@@ -54,10 +53,10 @@ class _DetailPageState extends State<DetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.grey[300],
+        backgroundColor: Colors.green[300],
         title: Text(
           '댓글',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: Colors.white),
         ),
       ),
       body: Container(
@@ -147,10 +146,11 @@ class _DetailPageState extends State<DetailPage> {
                           lock = false;
                           if (_commentController.text.length != 0) {
                             final url =
-                                'http://$ip:4000/api/comment/write_comment';
+                                'http://${Storage.ip}:4000/api/comment/write_comment';
                             final res = await http.post(url, body: {
                               'index': widget.contentData['_id'], // 글 번호
-                              'writer': widget.userData['id'], // 현재 로그인한 유저 아이디
+                              'writer':
+                                  await storage.getUserId(), // 현재 로그인한 유저 아이디
                               'comment': _commentController.text // 댓글
                             });
 

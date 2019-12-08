@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:movie_review_frontend/page/RegisterPage.dart';
 import '../model/user.dart';
 import '../util/storage.dart';
-import 'MainPage.dart';
+import 'HomePage.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({
@@ -25,8 +25,6 @@ class _LoginPageState extends State<LoginPage> {
   String autoLoginCheck = "false";
   Color _eyeButtonColor = Colors.grey;
   Storage storage = new Storage();
-
-  final String ip = '192.168.1.101';
 
   @override
   void initState() {
@@ -88,7 +86,6 @@ class _LoginPageState extends State<LoginPage> {
                             padding: const EdgeInsets.only(left: 10.0),
                             child: InkWell(
                               onTap: () {
-                                print('tap');
                                 Navigator.of(context).pushReplacement(
                                     MaterialPageRoute(
                                         builder: (BuildContext context) =>
@@ -179,7 +176,7 @@ class _LoginPageState extends State<LoginPage> {
           child: RaisedButton(
               onPressed: () async {
                 if (_formKey.currentState.validate()) {
-                  final url = 'http://$ip:4000/api/user/login';
+                  final url = 'http://${Storage.ip}:4000/api/user/login';
                   try {
                     final res = await http.post(url, body: {
                       'id': _idController.text.toString(),
@@ -195,7 +192,7 @@ class _LoginPageState extends State<LoginPage> {
                         storage.setUserData(_idController.text.toString(),
                             _pwController.text.toString());
                         Navigator.of(context).pushReplacement(MaterialPageRoute(
-                            builder: (BuildContext context) => MainPage(
+                            builder: (BuildContext context) => HomePage(
                                   userData: userData.toJson(),
                                 )));
                       } else {

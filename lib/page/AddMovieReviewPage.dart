@@ -8,14 +8,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:movie_review_frontend/model/movie.dart';
 import 'package:http/http.dart' as http;
+import 'package:movie_review_frontend/util/storage.dart';
 
 class AddMovieReviewPage extends StatefulWidget {
-  final Map userData;
-  AddMovieReviewPage({
-    Key key,
-    @required this.userData,
-  }) : super(key: key);
-
   @override
   _AddMovieReviewPageState createState() => _AddMovieReviewPageState();
 }
@@ -23,16 +18,17 @@ class AddMovieReviewPage extends StatefulWidget {
 class _AddMovieReviewPageState extends State<AddMovieReviewPage> {
   TextEditingController title = TextEditingController();
   TextEditingController review = TextEditingController();
-  final String ip = '192.168.1.101';
   File _image;
   final df = DateFormat('yyyy년 MM월 dd일');
   String date = '';
   double score = 3.0;
-
+  bool lock = true;
+  Storage storage = new Storage();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.green[300],
           title: Text('영화 추가 페이지'),
         ),
         body: ListView(
@@ -128,27 +124,30 @@ class _AddMovieReviewPageState extends State<AddMovieReviewPage> {
 
   Padding saveButton(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 160, right: 160, bottom: 30.0),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 30.0),
       child: RaisedButton(
         onPressed: () {
-          if (title.text == '') {
-            Fluttertoast.showToast(
-                msg: '영화명을 입력해주세요', toastLength: Toast.LENGTH_SHORT);
-          } else if (date == '') {
-            Fluttertoast.showToast(
-                msg: '날짜를 입력해주세요.', toastLength: Toast.LENGTH_SHORT);
-          } else if (_image == null) {
-            Fluttertoast.showToast(
-                msg: '사진을 업로드해주세요.', toastLength: Toast.LENGTH_SHORT);
-          } else {
-            submitMovie(title.text, review.text, Image.file(_image));
+          if (lock) {
+            lock = false;
+            if (title.text == '') {
+              Fluttertoast.showToast(
+                  msg: '영화명을 입력해주세요', toastLength: Toast.LENGTH_SHORT);
+            } else if (date == '') {
+              Fluttertoast.showToast(
+                  msg: '날짜를 입력해주세요.', toastLength: Toast.LENGTH_SHORT);
+            } else if (_image == null) {
+              Fluttertoast.showToast(
+                  msg: '사진을 업로드해주세요.', toastLength: Toast.LENGTH_SHORT);
+            } else {
+              submitMovie(title.text, review.text, Image.file(_image));
+            }
           }
         },
         child: Text(
           '저장',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white, fontSize: 22.0),
         ),
-        color: Color(0xff3fc4fe), //Color.fromRGBO(63, 196, 254, 100),
+        color: Colors.green[300],
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       ),
@@ -160,25 +159,32 @@ class _AddMovieReviewPageState extends State<AddMovieReviewPage> {
 
     List<int> imageBytes = await _image.readAsBytes();
     String base64Image = base64Encode(imageBytes);
+    String writer = await storage.getUserId();
+    print(writer);
 
     Movie movie = Movie(
-        writer: widget.userData['id'],
+        writer: writer,
         title: title,
         date: date,
         ticket: base64Image,
         score: score.toString(),
         review: review);
-    final url = 'http://$ip:4000/api/movie/write_review';
+    final url = 'http://${Storage.ip}:4000/api/movie/write_review';
     final res = await http.post(url, body: movie.toJson());
 
     if (res.statusCode == 200) {
       final jsonBody = json.decode(res.body);
       final result = jsonBody['success'];
       if (result) {
+        this.title.text = '';
+        this.review.text = '';
+        setState(() {
+          this._image = null;
+          this.date = '';
+          this.score = 3.0;
+        });
         Fluttertoast.showToast(
             msg: '글이 작성되었습니다!', toastLength: Toast.LENGTH_SHORT);
-
-        Navigator.pop(context);
       } else {
         Fluttertoast.showToast(
             msg: jsonBody['error'].toString(), toastLength: Toast.LENGTH_SHORT);

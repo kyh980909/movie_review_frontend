@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:movie_review_frontend/util/storage.dart';
 import 'LoginPage.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -19,7 +20,6 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _isObscured = true;
   String autoLoginCheck = "false";
   Color _eyeButtonColor = Colors.grey;
-  final String ip = '192.168.1.101';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,7 +164,7 @@ class _RegisterPageState extends State<RegisterPage> {
         child: RaisedButton(
             onPressed: () async {
               if (_formKey.currentState.validate()) {
-                final url = 'http://$ip:4000/api/user/register';
+                final url = 'http://${Storage.ip}:4000/api/user/register';
                 final res = await http.post(url, body: {
                   'id': _idController.text.toString(),
                   'pw': _pwController.text.toString()
