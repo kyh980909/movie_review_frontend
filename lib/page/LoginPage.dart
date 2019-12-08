@@ -203,6 +203,7 @@ class _LoginPageState extends State<LoginPage> {
                       print(loginResult);
                     }
                   } catch (err) {
+                    print(err);
                     Scaffold.of(context).showSnackBar(SnackBar(
                       content: Text('서버가 닫혀있습니다.'),
                     ));

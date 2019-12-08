@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:movie_review_frontend/page/UserInfoPage.dart';
 import 'LoginPage.dart';
 import 'package:movie_review_frontend/page/AddMovieReviewPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../util/storage.dart';
 import 'ReviewListPage.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   final Map userData;
@@ -56,11 +60,11 @@ class _HomePageState extends State<HomePage> {
               title: Text('')),
           BottomNavigationBarItem(
               backgroundColor: Colors.white,
-              icon: Icon(Icons.person_outline),
+              icon: Icon(Icons.person),
               title: Text('')),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue[800],
+        selectedItemColor: Colors.green[300],
         onTap: _onItemTapped,
       ),
     );
@@ -103,7 +107,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            Flexible(
+            Expanded(
               flex: 17,
               child: ListTile(
                 title: Text(
@@ -116,6 +120,47 @@ class _HomePageState extends State<HomePage> {
                   prefs.clear();
                   Navigator.of(context).pushReplacement(MaterialPageRoute(
                       builder: (BuildContext context) => LoginPage()));
+                },
+              ),
+            ),
+            Flexible(
+              flex: 2,
+              child: ListTile(
+                title: Text(
+                  '회원탈퇴',
+                  style: TextStyle(fontSize: 16.0, color: Colors.red),
+                ),
+                onTap: () async {
+                  final url = 'http://${Storage.ip}:4000/api/user/remove';
+                  try {
+                    final res = await http
+                        .post(url, body: {'id': widget.userData['id']}); // 응답
+                    // id, pw 입력했을 때
+                    if (res.statusCode == 200) {
+                      final jsonBody = json.decode(res.body);
+                      final loginResult = jsonBody['success'];
+                      if (loginResult) {
+                        Fluttertoast.showToast(
+                            msg: '회원탈퇴가 되었습니다.',
+                            toastLength: Toast.LENGTH_SHORT);
+                        SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        prefs.clear();
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (BuildContext context) => LoginPage()));
+                      } else {
+                        print(jsonBody['error']);
+                        Fluttertoast.showToast(
+                            msg: '회원탈퇴에 실패했습니다.',
+                            toastLength: Toast.LENGTH_SHORT);
+                      }
+                      print(loginResult);
+                    }
+                  } catch (err) {
+                    print(err);
+                    Fluttertoast.showToast(
+                        msg: '회원탈퇴에 실패했습니다.', toastLength: Toast.LENGTH_SHORT);
+                  }
                 },
               ),
             ),
